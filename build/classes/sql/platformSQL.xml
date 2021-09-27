@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="recommend">	
+	<select id="platform" resultType="detailDTO">
+		select title, image, genre, comple, rating_revel, review_num from detail where index_book = #{value}
+	</select>	
+	
+	<!-- 네이버시리즈의 index_book, title, image, genre, comple, times, rating_num, review_num 가져오기 -->
+	<select id="naverList" resultType="detailDTO" parameterType="detailDTO">
+		select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num,r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num, rownum r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num from detail where link_naver is not null order by rating_revel desc) 
+		order by rating_revel desc)
+		<where>
+				<if test="startRow > 0"><![CDATA[r >= #{startRow}]]></if>
+				<if test="endRow > 0 and endRow > startRow"><![CDATA[and r <= #{endRow}]]></if>
+		</where>
+	</select>
+	
+	<!-- 네이버시리즈의 작품 수 카운트 -->
+	<select id="naverCount" resultType="int" parameterType="int">
+		select count(*) from detail where link_naver is not null
+	</select>
+	
+	<!-- 카카오페이지의 index_book, title, image, genre, comple, times, rating_num, review_num 가져오기 -->
+	<select id="kakaoList" resultType="detailDTO" parameterType="detailDTO">
+		select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num,r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num, rownum r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num from detail where link_kakao is not null order by rating_revel desc) 
+		order by rating_revel desc)
+		<where>
+				<if test="startRow > 0"><![CDATA[r >= #{startRow}]]></if>
+				<if test="endRow > 0 and endRow > startRow"><![CDATA[and r <= #{endRow}]]></if>
+		</where>
+	</select>
+	
+	<!-- 카카오페이지의 작품 수 카운트 -->
+	<select id="kakaoCount" resultType="int" parameterType="int">
+		select count(*) from detail where link_kakao is not null
+	</select>
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- xmlns:aop => aop스키마 추가 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   	   xmlns:context="http://www.springframework.org/schema/context"
+   	   xmlns:p="http://www.springframework.org/schema/p"
+   	   xmlns:aop="http://www.springframework.org/schema/aop"
+   	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+   						   http://www.springframework.org/schema/beans/spring-beans.xsd
+   						   http://www.springframework.org/schema/context
+   						   http://www.springframework.org/schema/context/spring-context-3.0.xsd
+   						   http://www.springframework.org/schema/aop
+   						   http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+   						   
+   						   
+	<!-- aop 실행될 때 어떤 클래스가 실행될 지 설정 -->
+	<bean id="revelAdvice" class="aop.Advice" />
+	
+	<!-- aop 설정하는 곳 -->
+	<!-- 
+	  Ex) test.spring.bean.day4..*(..) : 해당 패키지의 모든 클래스(day4..) 중 모든 메서드(*)에서 메서드의 매개변수 유무 상관 없이(..) 실행된다. 
+      	  test.spring.bean.day4..*(*)) : 해당 패키지의 모든 클래스(day4..) 중 모든 메서드(*)에서 메서드의 매개변수 타입 상관 없고, 하나인 것(*)이  실행된다. 
+      	  day4..*(*,*)) : 매개변수의 타입은 상관 없고, 2개인 것 
+      	  pointcut의 execution이 많아지면 조건에 따라 충돌이 날 수 있다!!(ex.pc2와 pc5) => 충돌이 나지 않도록 설계 
+      	  pointcut : 언제 aop를 실행시키는지 정해준다. 
+      	  aspect : pointcut에 해당되면 aop를 실행 
+      	  method : aop실행시킬 메서드 이름 
+      	  around : before + after
+    -->
+    
+    <aop:config>
+    	<!-- login pointcut -->
+    	<aop:pointcut id="pcMember" expression="execution(public * member..myLogon*(..))" />
+    	<aop:pointcut id="pcAdmin" expression="execution(public * admin..myLogon*(..))" />
+    	<aop:pointcut id="pcRecom" expression="execution(public * recommend..myLogon*(..))" />
+    	<aop:pointcut id="pcMain" expression="execution(public * main..myLogon*(..))" />
+    	
+    	<!-- login pointcut 접근 aop 메서드 -->
+    	<aop:aspect id="logonMember" ref="revelAdvice">
+    		<aop:around method="myLogon" pointcut-ref="pcMember" />
+    	</aop:aspect>
+    	<aop:aspect id="logonAdmin" ref="revelAdvice">
+    		<aop:around method="myLogon" pointcut-ref="pcAdmin" />
+    	</aop:aspect>
+    	<aop:aspect id="logonRecom" ref="revelAdvice">
+    		<aop:around method="myLogon" pointcut-ref="pcRecom"/>
+    	</aop:aspect>
+    	<aop:aspect id="logonMain" ref="revelAdvice">
+    		<aop:around method="myLogon" pointcut-ref="pcMain"/>
+    	</aop:aspect>
+    
+    
+    </aop:config>
+	   						   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</beans>

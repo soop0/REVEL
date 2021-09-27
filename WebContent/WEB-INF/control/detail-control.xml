@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:p="http://www.springframework.org/schema/p"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+   					   http://www.springframework.org/schema/context
+   					   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="detail" />
+	
+	<bean id="detail" class="detail.DetailDTO" />
+	<bean id="review" class="detail.ReviewDTO" />
+	<bean id="review_like" class="detail.Review_LikeDTO" />
+	<bean id="ratingMember" class="detail.RatingMemberDTO"/>
+	<bean id="read_member" class="detail.Read_index_memberDTO" />
+	<bean id="readStatus" class="detail.ReadStatusDTO" />
+	<bean id="linkClick" class="detail.LinkClickDTO" />
+	
+	<bean id="detailImpl" class="detail.DetailDAOImpl" />
+	<bean id="analImpl" class="member.AnalysisDAOImpl" />
+</beans>

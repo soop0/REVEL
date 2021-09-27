@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="detail">
+	
+	<!-- 책번호에 해당하는 세부내용 조회-->
+	<select id="allDetail" resultType="detailDTO" parameterType="int">
+		select * from detail where index_book=#{value}
+	</select>
+	
+	<!-- 회원이 해당 작품을 평점 부여했는지 확인하는 sql
+		 있으면 count 수 리턴, 없으면 0 리턴 -->
+	<select id="ratingCount" resultType="int" parameterType="ratingMember">
+		select count(*) from rating
+		<where>
+			<if test="index_book > 0">index_book = #{index_book}</if>
+			<if test="index_member >0">and index_member = #{index_member}</if>
+		</where>
+	</select>
+	
+	<!-- 회원이 해당 작품을 평점을 Rating Table에 insert하는 sql -->
+	<insert id="ratingInsert" parameterType="ratingMember">
+		insert into rating (index_book, index_member, reg_time, rating) values(#{index_book}, #{index_member}, sysdate, #{rating})
+	</insert>
+	
+	<!-- 회원이 해당 작품을 평점을 Rating Table에 update하는 sql -->
+	<update id="ratingUpdate" parameterType="ratingMember">
+		update rating set rating=#{rating} where index_book=#{index_book} and index_member=#{index_member}
+	</update>
+	
+	<!-- 회원의 해당 작품 평점을 조회하는 sql -->
+	<select id="ratingSelect" parameterType="ratingMember" resultType="int">
+		select rating from rating where index_book=#{index_book} and index_member=#{index_member}
+	</select>
+	
+	<!-- 해당 작품을 평가한 전체 인원을 조회하는 sql -->
+	<select id="ratingTotalNum" parameterType="int" resultType="int">
+		select count(*) from rating where index_book=#{value}
+	</select>
+	
+	<!-- 해당 작품을 평가한 전체 평점의 평균을 조회하는 sql -->
+	<select id="ratingAvg" parameterType="int" resultType="float">
+		select avg(rating) from rating where index_book=#{value}
+	</select>
+	
+	<!-- 각 해당 작품 간 계산된 전체 인원수와 평균 평점을 detail Table에 업데이트 하는 sql -->
+	<update id="ratingAnl" parameterType="detailDTO">
+		update detail set rating_revel=#{rating_revel}, rating_num=#{rating_num} where index_book=#{index_book}
+	</update>
+	
+	<!-- 회원별 해당 작품 독서상태 선택여부 확인 -->
+	<select id="rstatusCount" resultType="int" parameterType="readStatusDTO">
+		select count(*) from read_${index_member}
+		<where>
+			<if test="index_book > 0">index_book = #{index_book}</if>
+		</where>
+	</select>
+	
+	<!-- 각 회원별 독서상태 테이블에 독서상태 갯 수 확인용 넘버링, 책번호, 독서상태, 독서상태 선택 날짜 입력 -->
+	<insert id="rstatusInsert" parameterType="readStatusDTO">
+		insert into read_${index_member} (index_rstatus, index_book, read, reg_date) values(read_${index_member}_seq.nextval, #{index_book}, #{read}, sysdate)
+	</insert>
+	
+	<!-- 각 회원의 책번호별 독서상태 항목 조회 -->
+	<select id="rstatusSelect" parameterType="readStatusDTO" resultType="int">
+		select read from read_${index_member} where index_book=#{index_book}
+	</select>
+	
+	<!-- 각 회원의 책번호별 독서상태, 독서상태 선택 날짜 업데이트 -->
+	<update id="rstatusUpdate" parameterType="readStatusDTO">
+		update read_${index_member} set read=#{read},reg_date=sysdate where index_book=#{index_book}
+	</update>
+	
+	<!-- 각 회원의 해당 소설의 독서상태 해제하기  -->
+	<delete id="rstatusDelete" parameterType="readStatusDTO">
+		delete from read_${index_member} where index_book=#{index_book}
+	</delete>
+	
+	<!-- 해당 작품 독서상태 추가(detail 테이블) -->
+	<update id="detailRstatusAdd" parameterType="readStatusDTO">
+		update detail set ${readAfter}=${readAfter}+1 where index_book=#{index_book}
+	</update>
+	
+	<!-- 해당 작품 독서상태 변경(detail 테이블) -->
+	<update id="detailRstatusChange" parameterType="readStatusDTO">
+		update detail set ${readBefore}=${readBefore}-1, ${readAfter}=${readAfter}+1 where index_book=#{index_book}
+	</update>
+	
+	<!-- 해당 작품 독서상태 취소(detail 테이블 -->
+	<update id="detailRstatusDelete" parameterType="readStatusDTO">
+		update detail set ${readAfter}=${readAfter}-1 where index_book=#{index_book}
+	</update>
+	
+	<!-- 해당 작품의 독서상태를 선택한 전체 인원 조회 -->
+	<select id="readTotalNum" parameterType="int" resultType="int">
+		select count(*) from read_${index_member} where index_book=#{value}
+	</select>
+	
+	<!-- 사용자가 누른 플랫폼의 해당 소설이 link_click 테이블에 있는지 확인 -->
+	<select id="clickCount" resultType="int" parameterType="linkClickDTO">
+		select count(*) from link_click
+		<where>
+			<if test="index_book > 0">index_book = #{index_book}</if>
+			<if test="index_member >0">and index_member = #{index_member}</if>
+		</where>
+	</select>
+	
+	<!-- 회원이 네이버 작품을 클릭했는지 확인-->
+	<select id="naverSelect" resultType="int" parameterType="linkClickDTO">
+		select naver from link_click
+		<where>
+			index_book=#{index_book} and index_member=#{index_member}
+		</where>
+	</select>
+	
+	<!-- 회원이 카카오 작품을 클릭했는지 확인-->
+	<select id="kakaoSelect" resultType="int" parameterType="linkClickDTO">
+		select kakao from link_click
+		<where>
+			index_book=#{index_book} and index_member=#{index_member}
+		</where>
+	</select>
+	
+	<!-- 회원이 클릭하면 클릭 수에 추가 -->
+	<insert id="clickInsert" parameterType="linkClickDTO">
+		insert into link_click (index_book, index_member, reg_time, ${platform}) values(#{index_book}, #{index_member}, sysdate, #{platformCount})
+	</insert>
+	
+	<!-- 선택한 플랫폼의 클릭수 업데이트 -->
+	<update id="platformUpdate" parameterType="linkClickDTO">
+		update link_click set ${platform}=${platform}+1 where index_book=#{index_book} and index_member=#{index_member}
+	</update>
+	
+	<!-- 동일 작가 작품 수 조회 -->
+	<select id="sameWriterCount" resultType="int" parameterType="int">
+		select count(*) from detail where writer= (select writer from detail where index_book=#{index_book})
+	</select>
+	
+	<!-- 동일 작가 작품 정보 조회(책번호, 제목, 작가, 회차, 완결여부, 장르, 이미지, 평점) -->
+	<select id="sameWriterList" resultType="detailDTO" parameterType="int">
+		select index_book, title, writer, times, comple, genre, image, rating_revel from detail where writer= (select writer from detail where index_book=#{index_book}) and index_book not in(#{index_book})
+	</select>
+	
+</mapper>

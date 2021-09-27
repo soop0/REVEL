@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+  <!-- config에서 sql 연결 작업 (mybatis의 controller역할)-->
+  <!-- mappers : SQL 작성하는 공간(파일) mybatis에서 사용하는 sql파일은 모두 나열한다. -->
+  <!-- typeAliases : testSQL의 resultType이 자주 사용될 타입을 지정하여 코드를 간단하게 줄일 수 있다. -->
+<configuration>
+
+	<typeAliases>
+		<typeAlias type="detail.DetailDTO" alias="detailDTO" />
+		<typeAlias type="detail.ReviewDTO" alias="reviewDTO"/>
+		<typeAlias type="member.MemberDTO" alias="memberDTO" />
+		<typeAlias type="member.SurveyDTO" alias="surveyDTO" />
+		<typeAlias type="help.NoticeDTO" alias="noticeDTO" />
+		<typeAlias type="detail.Review_LikeDTO" alias="review_likeDTO" />
+		<typeAlias type="detail.RatingMemberDTO" alias="ratingMember" />
+		<typeAlias type="detail.Read_index_memberDTO" alias="read_memberDTO"/>
+		<typeAlias type="detail.ReadStatusDTO" alias="readStatusDTO"/>
+		<typeAlias type="detail.LinkClickDTO" alias="linkClickDTO"/>
+		<typeAlias type="recommend.MemKeyAnalDTO" alias="memKeyAnalDTO" />
+		<typeAlias type="recommend.KeyAnalDTO" alias="keyAnalDTO" />
+		<typeAlias type="java.util.List" alias="list" />
+		<typeAlias type="recommend.TempAnalDTO" alias="tempAnalDTO" />
+		<typeAlias type="member.MemberReadDTO" alias="readDTO" />
+		<typeAlias type="member.MemberAnalDTO" alias="analDTO" />
+		<typeAlias type="recommend.OutListDTO" alias="outListDTO" />  
+		<typeAlias type="ranking.KeywordDTO" alias="keywordDTO" />		
+		<typeAlias type="ranking.RankingDTO" alias="rankingDTO" />
+		<typeAlias type="admin.WithdrawalDTO" alias="withdrawalDTO" />
+		<typeAlias type="admin.AdminDTO" alias="adminDTO" />
+		<typeAlias type="main.SearchDTO" alias="searchDTO" />
+	</typeAliases>
+	
+	<!-- 매핑할 SQL.xml 파일 추가 -->
+	<mappers>
+		<mapper resource="/sql/mainSQL.xml" />
+		<mapper resource="/sql/detailSQL.xml"/>
+		<mapper resource="/sql/genreSQL.xml"/>
+		<mapper resource="/sql/reviewSQL.xml" />
+		<mapper resource="/sql/memberSQL.xml"/>
+		<mapper resource="/sql/logonSQL.xml"/>
+		<mapper resource="/sql/noticeSQL.xml" />
+		<mapper resource="/sql/platformSQL.xml" />
+		<mapper resource="/sql/adminSQL.xml" />
+		<mapper resource="/sql/recoSQL.xml"/>
+		<mapper resource="/sql/analSQL.xml" />
+		<mapper resource="/sql/kewordSQL.xml" />	
+		<mapper resource="/sql/rankingSQL.xml" /> 
+	</mappers>
+</configuration>

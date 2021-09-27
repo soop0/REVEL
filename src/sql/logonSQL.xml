@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="logon">
+	
+	<!-- 관리자인지 확인하는 sql문 -->
+	<select id="isAdmin" resultType="String">
+		select platform_id from member where status=100
+	</select>
+	
+	<!-- 플랫폼에서 받아온 아이디와 status를 member 테이블의 platform_id와 status를 비교한다.
+	 	 기존회원이 있으면 1을 리턴받고, 없으면 0을 리턴하는 sql문. -->
+	<select id="isMemberCount" parameterType="memberDTO" resultType="int">
+		select count(*) from member where platform_id=#{platform_id} and status=#{status} 
+	</select>
+	
+	<!-- 플랫폼에서 받아온 아이디와 status를 member 테이블의 platform_id와 status를 비교한다.
+	     기존회원이면 index_member을 반환하는 sql문.  -->
+	<select id="isMember" parameterType="memberDTO" resultType="int">
+		select index_member from member where platform_id=#{platform_id} and status=#{status}
+	</select>
+	
+	<!-- member 테이블에 회원정보를 insert하는 sql문. -->
+	<insert id="insertMember" parameterType="memberDTO">
+		insert into member (index_member, platform_id, nick, birthday, age, gender, status, reg_date) values (member_seq.NEXTVAL, #{platform_id}, #{nick}, #{birthday}, #{age}, #{gender}, #{status}, sysdate) 
+	</insert>
+	
+	<!-- member 테이블에서 원하는 회원의 정보를 가져오는 sql문. -->
+	<select id="getMember" parameterType="int" resultType="memberDTO">
+		select * from member where index_member=#{value}
+	</select>
+	
+	<!-- survey 테이블에 회원설문조사 결과를 insert하는 sql문. -->
+	<insert id="insertSurvey" parameterType="surveyDTO">
+		insert into survey values (#{index_member}, #{volume}, #{romance}, #{rofan}, #{fantagy}, #{mofan}, #{heroism})
+	</insert>
+	
+	<!-- 탈퇴회원이 재가입시 설문조사에 참여했으면 새로 조사한 설문조사로 업데이트 시키는 sql문 -->
+	<update id="updateSurvey" parameterType="surveyDTO">
+		update survey set volume=#{volume}, romance=#{romance}, rofan=#{rofan}, fantagy=#{fantagy}, mofan=#{mofan}, heroism=#{heroism}
+		where index_member=#{index_member}
+	</update>
+	
+	<!-- 회원의 생년월일을 확인하는 sql문 -->
+	<select id="checkBirthday" parameterType="memberDTO" resultType="int">
+		select count(*) from member where index_member=#{index_member} and birthday=#{birthday}
+	</select>
+	
+	<!-- member테이블의 status를 탈퇴상태(50)로 변경하고 1을 반환하는 sql문. -->
+	<update id="updateMStatus" parameterType="memberDTO">
+		update member set status=#{status} where index_member=#{index_member} and birthday=#{birthday}
+	</update>
+	
+	<!-- 회원가입 시 설문조사에 참여했는지 확인하는 sql문. (참여 : 1, 미참여 : 0) -->
+	<select id="memberSurveyCount" parameterType="int" resultType="int">
+		select count(*) from survey where index_member=#{value}
+	</select>
+	
+	<!-- 회원가입이 완료되면 자동으로 DB에 회원별 Read_index_member Table을 생성하는 sql문. -->
+	<insert id="read_index_memberCreateTable" parameterType="int">
+		create table read_${value}(
+			index_Rstatus number primary key,
+			index_book number,
+			read number,
+			reg_date date,
+			CONSTRAINT read_${value}_index_book_fk foreign key(index_book) references detail(index_book)
+		)
+	</insert>
+	
+	<!-- 회원가입이 완료되면 자동으로 DB에 회원별 Read_index_member_Sequence을 생성하는 sql문. -->
+	<insert id="read_index_memberSequence" parameterType="int">
+		create sequence read_${value}_seq nocache
+	</insert>
+	
+	<!-- 회원가입이 완료되면 자동으로 DB에 회원별 Member_keyword_anal_index_member Table을 생성하는 sql문 -->
+	<insert id="member_keyword_anal_index_memberCreateTable" parameterType="int">
+		create table member_keyword_anal_${value}(
+			index_keyword number,
+			cumul_score number default 1,
+			CONSTRAINT member_keyword_anal_${value}_index_keyword_fk foreign key(index_keyword) references keyword(index_keyword)
+		)
+	</insert>
+	
+	<!-- 회원가입이 완료되면 자동으로 DB에 회원별 Read_index_member_Sequence을 생성하는 sql문. -->
+	<insert id="member_keyword_anal_index_memberInsert" parameterType="int">
+		insert into member_keyword_anal_${value} (index_keyword) select index_keyword from keyword
+	</insert>
+</mapper>
