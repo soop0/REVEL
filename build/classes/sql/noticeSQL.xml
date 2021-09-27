@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <!-- 공지사항 sql -->
+  <mapper namespace="notice">
+  	<!-- 공지사항 목록 갯수를 받아온다. -->
+  	<select id="count" resultType="int">
+  		select count(*) from notice
+  	</select>
+  	
+  	<!-- startRow부터 endRow까지의 각각의 공지사항을 noticeDTO로 받아온다.  -->
+  	<select id="noticeList" resultType="noticeDTO" parameterType="noticeDTO">
+  		select index_notice, title, writer, reg_time, r 
+		from (select index_notice, title, writer, reg_time, rownum r 
+		from (select index_notice, title, writer, reg_time from notice order by index_notice desc) 
+		order by index_notice desc)
+		<where>
+			<if test="startRow > 0"><![CDATA[r >= #{startRow}]]></if>
+			<if test="endRow > 0 and endRow > startRow"><![CDATA[and r <= #{endRow}]]></if>
+		</where>
+  	</select>
+
+  	<!-- 공지 추가 sql -->
+  	<insert id="noticeWrite" parameterType="noticeDTO">
+  		insert into notice(index_notice,title,content,reg_time,writer) values(notice_seq.nextval,#{title},#{content},sysdate,#{writer})
+  	</insert>
+  	
+  	<!-- 해당 공지사항 내용보기 sql -->
+  	<select id="noticeContent" resultType="noticeDTO" parameterType="int">
+  		select * from notice
+  		<where>
+  			<if test="index_notice > 0">index_notice=#{index_notice}</if>
+  		</where>
+  	</select>
+  	
+  	<!-- 공지사항 수정 -->
+  	<update id="noticeUpdate" parameterType="noticeDTO">
+  		update notice set title=#{title}, content=#{content},
+  		reg_time=sysdate, writer=#{writer} where index_notice=#{index_notice}
+  	</update>
+  	
+  	<!-- 공지사항 삭제 -->
+  	<delete id="noticeDelete" parameterType="int">
+  		delete from notice where index_notice=#{value}
+  	</delete>
+  </mapper>
+  

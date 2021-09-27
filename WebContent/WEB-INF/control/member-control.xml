@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+   	   xmlns:context="http://www.springframework.org/schema/context"
+  	   xmlns:p="http://www.springframework.org/schema/p"
+   	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   						   http://www.springframework.org/schema/beans/spring-beans.xsd
+   						   http://www.springframework.org/schema/context
+   						   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+  
+  <context:component-scan base-package="member" />
+  
+  <bean id ="member" class="member.MemberDTO" />
+  <bean id="survey" class="member.SurveyDTO" />
+  <bean id="anal" class="member.MemberAnalDTO" />
+  <bean id="read" class="member.MemberReadDTO" />  
+  <bean id="review" class="detail.ReviewDTO" />
+  <bean id="readStatus" class="detail.ReadStatusDTO" />
+  <bean id="detail" class="detail.DetailDTO" />
+  
+  <bean id="daol" class="member.LogonDAOImple" />
+  <bean id="analImpl" class="member.AnalysisDAOImpl" />
+  <bean id="detailImpl" class="detail.DetailDAOImpl" />
+  
+  
+  <!-- NaverLoginBO Class에 대한 Bean설정 추가 -->
+  <bean id="naverLoginBO" class="member.NaverLoginBO" />
+
+ 
+  
+  
+  </beans>

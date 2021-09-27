@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="analysis">
+
+	<!-- 전체 평가한작품 + 작품 제목,작가 가져오기 -->
+	<select id="getratingdetail" resultType="ratingMember" parameterType="int">
+		select r.index_book, r.reg_time, r.rating, r.rating, r.index_member, d.title, d.writer from rating r join detail d on d.index_book = r.index_book where index_member=#{index_member}
+	</select>
+
+	<!-- 회원이 평가한 전체 작품수 가져오기 -->
+	<select id="totalcount" resultType="int" parameterType="int">
+		select count(*) from rating where index_member=#{index_member}
+	</select> 
+	
+	<!-- 회원이 평가한 특정 작품 가져오기 -->
+	<select id="getrating" resultType="ratingMember" parameterType="ratingMember">
+		select * from rating where index_member=#{index_member} and index_book=#{index_book}
+	</select>
+  	 	
+	<!-- 평가점수 삭제 -->
+	<delete id="deleterating" parameterType="ratingMember">
+		delete from rating where index_book=#{index_book} and index_member=#{index_member}
+	</delete>
+	
+	<!--평가한 작품 인덱스번호를 통해 키워드와 가중치 목록 가져오기  -->
+	<select id="getkeywordlist" resultType="analDTO" parameterType="int">
+		select r.index_book ,r.rating, ka.index_keyword, ka.weight from rating r join keyword_anal ka on r.index_book = ka.index_book where index_member=#{index_member}
+ 	</select>
+	
+	<!--평점*키워드 비중 누적점수에 계산하기 (별점1:-1, 별점2:1, 별점3~5:3~5 비중) 기본값은 1 -->
+	<update id="updatescore" parameterType="ratingMember" >
+		update member_keyword_anal_${index_member} m set cumul_score =
+			(select sum(f.weight*s.rating_weight)+1 from(select * from keyword_anal) f 
+			join (select index_book,rating,  
+			case when rating = 1 then -1
+		    when rating =2 then 1
+		    when <![CDATA[rating>2]]> then rating
+		    end as rating_weight
+		    from rating where index_member=${index_member}) s on f.index_book=s.index_book 
+		    where m.index_keyword = f.index_keyword  group by f.index_keyword )
+	</update>
+	
+	<!-- 회원이 평가한 별점별 작품수 가져오기 -->
+	<select id="ratingcount" resultType="int" parameterType="ratingMember">
+		select count(*) from rating where index_member=#{index_member} and rating=#{rating}
+	</select> 
+	
+	
+	<!-- 회원 독서상태별 작품수 가져오기 -->
+	<select id="readcount" resultType="int" parameterType="readDTO">
+		select count(*) from read_${index_member} where read=#{read}
+	</select>
+
+	
+	<!-- 회원 독서상태에 따른 목록 가져오기 -->
+	<select id="getreadlist" resultType="readDTO" parameterType="readDTO">
+		select m.index_rstatus, m.index_book, m.read, m.reg_date, d.title, d.writer from read_${index_member} m 
+			join detail d on m.index_book = d.index_book where read=#{read}
+	</select>
+	
+	<!-- 회원 독서상태 변경하기 -->
+	<update id="updateread" parameterType="readDTO">
+		update read_${index_member} set read=#{read}, reg_date=sysdate where index_rstatus=#{index_rstatus}
+	</update>
+	
+	<!-- 회원 독서상태 삭제하기 -->
+	<delete id="deleteread" parameterType="readDTO">
+		delete from read_${index_member} where index_rstatus =#{index_rstatus}
+	</delete>
+	
+	<!-- 회원 선호키워드 전체 top20 가져오기 -->
+	<select id ="getmkeyword" resultType="analDTO" parameterType="int">
+		select keywords, cumul_score from(select k.keywords, m.cumul_score from member_keyword_anal_${index_member} m 
+			join keyword k on m.index_keyword = k.index_keyword order by m.cumul_score desc) where <![CDATA[rownum <=20]]>
+	</select>
+	
+	<!-- 회원 선호키워드 캐릭터-카테고리 top 6  -->
+	<select id ="getmkeyword1" resultType="analDTO" parameterType="int">
+		select category, keywords, cumul_score from(select k.category, k.keywords, m.cumul_score from member_keyword_anal_${index_member} m 
+			join keyword k on m.index_keyword = k.index_keyword where k.category='캐릭터' order by m.cumul_score desc) where <![CDATA[rownum <=6]]>
+	</select>
+	
+	<!-- 회원 선호키워드 분위기-카테고리 top 6  -->
+	<select id ="getmkeyword2" resultType="analDTO" parameterType="int">
+		select category, keywords, cumul_score from(select k.category, k.keywords, m.cumul_score from member_keyword_anal_${index_member} m 
+			join keyword k on m.index_keyword = k.index_keyword where k.category='분위기' order by m.cumul_score desc) where <![CDATA[rownum <=6]]>
+	</select>
+	
+	<!-- 회원 선호키워드 소재-카테고리 top 6  -->
+	<select id ="getmkeyword3" resultType="analDTO" parameterType="int">
+		select category, keywords, cumul_score from(select k.category, k.keywords, m.cumul_score from member_keyword_anal_${index_member} m 
+			join keyword k on m.index_keyword = k.index_keyword where k.category='소재' order by m.cumul_score desc) where <![CDATA[rownum <=6]]>
+	</select>
+	
+	<!-- 회원 선호키워드 독자반응-카테고리 top 3  -->
+	<select id ="getmkeyword4" resultType="analDTO" parameterType="int">
+		select category, keywords, cumul_score from(select k.category, k.keywords, m.cumul_score from member_keyword_anal_${index_member} m 
+			join keyword k on m.index_keyword = k.index_keyword where k.category='독자반응' order by m.cumul_score desc) where <![CDATA[rownum <=3]]>
+	</select>
+	
+	<!-- 독서상태3:다읽었다 & 평점 작품 기반으로 장르별 수 count -->	 	
+	<select id ="genrecount" resultType="int" parameterType="readDTO">
+		select count(d.genre) from(select index_book from rating where index_member=#{index_member} union select index_book from read_${index_member} where read=3 order by 1) 
+		f join detail d on f.index_book=d.index_book where genre=#{genre}
+	</select>	 
+	
+	<!-- 장르별 댓글 count -->
+	<select id = "reviewcount" resultType="int" parameterType="readDTO">
+		select count(*) from review r join detail d on r.index_book = d.index_book where index_member=#{index_member} and genre=#{genre}
+	</select>			
+		 	
+</mapper>

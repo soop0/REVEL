@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="member">
+	<!-- 회원정보가져오기 -->
+	<select id="getmember" resultType="memberDTO" parameterType="memberDTO">
+		select * from member where index_member=#{index_member}	and status=#{status}
+	</select>
+		
+	<!-- 닉네임 중복체크 -->
+  	<select id="nickcheck" parameterType="String" resultType="int">
+  		select count(*) from member where nick=#{nick}
+  	</select>
+  	
+  	<!-- 닉네임 변경하기 -->
+	<update id="nickchange" parameterType="memberDTO">
+		update member
+		<set>
+			<if test="nick!=null"> nick=#{nick}</if>
+		</set>	
+		where index_member=#{index_member}		
+	</update>  	
+
+	<!-- 설문조사 테이블 조회하기 -->
+	<select id="getsurvey" resultType="surveyDTO" parameterType="int">
+		select * from survey where index_member=#{index_member}
+	</select>
+	
+	<!-- 설문조사 선호장르 변경하기 -->
+	<update id="genrechange" parameterType="surveyDTO">
+		update survey
+		<set>
+			romance=#{romance}, rofan=#{rofan}, fantagy=#{fantagy}, mofan=#{mofan}, heroism=#{heroism}
+		</set>	
+		where index_member=#{index_member}		
+	</update>
+	
+	<!-- 설문조사 volume 변경하기 -->
+	<update id="volumechange" parameterType="surveyDTO">
+		update survey set volume=#{volume} where index_member=#{index_member}		
+	</update>	
+	
+	<!-- 회원탈퇴 사유 저장하기 업데이트 -->
+	<update id="updatemw" parameterType="memberDTO">
+		update member set withdrawal=#{withdrawal} where index_member=#{index_member}
+	</update>
+	
+	<!-- 내가 쓴 댓글의 갯수 확인 -->
+	<select id="myReviewCount" parameterType="int" resultType="int">
+		select count(*) from review where index_member=#{value}
+	</select>
+	
+	<!-- 내가 쓴 댓글 조회 -->
+	<select id="myReview" parameterType="int" resultType="reviewDTO">
+		select review.index_review, review.index_member, review.index_book, detail.title, review.content, review.like_num, review.reg_time, review.cleanbot
+        	from review inner join detail
+            	on review.index_book = detail.index_book
+                	where index_member=#{index_member} order by review.index_review desc 
+	</select>
+	
+	<!-- 삭제하기 위해 선택한 내가 쓴 댓글이 있는지 확인하는 sql문 -->
+	<select id="myReviewDelCount" parameterType="reviewDTO" resultType="int">
+		select count(*) from review
+		<where>
+			<if test="index_review > 0"><![CDATA[index_review=#{index_review}]]></if>
+			<if test="index_book > 0"><![CDATA[and index_book=#{index_book}]]></if>
+			<if test="index_member > 0"><![CDATA[and index_member=#{index_member}]]></if>
+		</where>
+	</select>
+	
+	<!-- 선택한 내가 쓴 댓글 삭제하는 sql문 -->
+	<delete id="myReviewDel" parameterType="reviewDTO">
+		delete from review
+		<where>
+			<if test="index_review > 0"><![CDATA[index_review=#{index_review}]]></if>
+			<if test="index_book > 0"><![CDATA[and index_book=#{index_book}]]></if>
+			<if test="index_member > 0"><![CDATA[and index_member=#{index_member}]]></if>
+		</where>
+	</delete>
+	 
+	
+</mapper>

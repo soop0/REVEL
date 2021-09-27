@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="review">
+	<!-- 댓글 갯수 카운트 -->
+	<select id="reviewCount" resultType="int" parameterType="int">
+		select count(*) from review where index_book = #{value}
+	</select>
+	
+	<!-- 해당 소설의 댓글 갯수를 detail Table의 review_num에 업데이트 -->
+	<update id="review_num" parameterType="detailDTO">
+		update detail set review_num=#{review_num} where index_book=#{index_book}
+	</update>
+	
+	<!-- 댓글 조회-->
+	<select id="reviewList" resultType="reviewDTO" parameterType="reviewDTO" >
+	 select result.* 
+        from (select page.*, rownum r 
+                        from (select review.index_review, review.index_member, member.nick, review.content, review.reg_time, review.like_num, review.cleanbot
+                                        from review inner join member
+                                        on review.index_member = member.index_member
+                                        where index_book=#{index_book} order by review.index_review desc) 
+                page) 
+        result
+	<where>
+      <if test="startRow > 0"><![CDATA[r >= #{startRow}]]></if>
+      <if test="endRow > 0 and endRow > startRow"><![CDATA[and r <= #{endRow}]]></if>
+	</where>
+	</select>
+		
+	<!-- 댓글 작성 -->
+	<insert id="reviewWrite" parameterType="reviewDTO" >
+		insert into review(index_review,index_member,index_book,content,reg_time,like_num) values(review_seq.nextval,#{index_member},#{index_book},#{content},sysdate,#{like_num})
+	</insert>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="reviewDelete" parameterType="int">
+		delete from review where index_review = #{value}
+	</delete>
+
+	<!-- 댓글 좋아요 기능 -->
+	<!-- count로 해당 회원의 좋아요 정보 확인 -->
+	<select id="rvLikeCount" resultType="int" parameterType="review_likeDTO" >
+		select count reaction from review_like where index_member=#{index_member} and index_review=#{index_review}
+	</select>
+	
+	<!-- 좋아요가 없는 경우 insert -->
+	<insert id="rvLikeInsert" parameterType="review_likeDTO">
+		insert into review_like(index_member, index_review) values (#{index_member}, #{index_review})	
+	</insert>
+	
+	<!-- 좋아요가 이미 있는 경우 다시 select -->
+	<select id="rvLikegetInfo" resultType="int" parameterType="review_likeDTO">
+		select reaction from review_like where index_member=#{index_member} and index_review=#{index_review}
+	</select>
+	
+	<update id="rvLikeUpdate" parameterType="review_likeDTO">
+		update review_like set <include refid="cal"></include> where index_member=#{index_member} and index_review=#{index_review}
+	</update>
+	
+	<sql id="cal">
+		<if test = "count == 1">
+			reaction = 0
+		</if>
+		<if test = "count == 0">
+			reaction = reaction + 1
+		</if>
+	</sql>
+	
+</mapper>

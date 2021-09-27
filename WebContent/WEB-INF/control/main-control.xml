@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- controller -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:p="http://www.springframework.org/schema/p"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+   
+   <!-- main 패키지 스캔 @Control, @Service-->
+   <context:component-scan base-package="main" />
+   <context:component-scan base-package="detail" />
+   <context:component-scan base-package="member" />
+   
+   <!-- 객체 생성 및 지정 (dto, dao) , 오라클 sql의 별칭 -->
+   <bean id="detail" class="detail.DetailDTO" />
+   <bean id="search" class="main.SearchDTO" />
+   <bean id="mainImpl" class="main.MainDAOImpl" />
+   </beans>

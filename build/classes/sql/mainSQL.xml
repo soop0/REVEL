@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="main">	
+  	<!-- main페이지의 main 슬라이드에 해당하는 책리스트를 조회한다. 랜덤으로 5작품을 선택하여 책정보(DetailDTO)를 가져온다. -->
+  	<select id="mainBook" resultType="detailDTO">	
+  		select index_book, title, writer, publisher, image,
+  		times, comple, genre, age_grade, link_naver, link_kakao, plot 
+  		from (select * from detail order by dbms_random.value) where rownum <![CDATA[<= ]]> 5
+  	</select>
+  	
+  	<!-- 검색결과 수 조회 --> 
+	<select id="searchCount" resultType="int" parameterType="searchDTO">
+		select count(*) from detail
+		<where>
+			<if test="theme != null and searchWord != null">${theme} like '%'||#{searchWord}||'%'</if>
+		</where> 
+	</select>
+  	
+  	<!-- 검색결과 리스트 조회 -->
+  	<select id="searchList" resultType="detailDTO" parameterType="searchDTO">
+  		select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num,r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num, rownum r 
+		from (select index_book, title, image, genre, comple, times, rating_revel, rating_num, review_num 
+		from detail 
+		<where>
+			<if test="theme != null and searchWord != null">${theme} like '%'||#{searchWord}||'%'</if>
+		</where>
+			 order by rating_revel desc)
+		order by rating_revel desc)
+		<where>
+				<if test="startRow > 0"><![CDATA[r >= #{startRow}]]></if>
+				<if test="endRow > 0 and endRow > startRow"><![CDATA[and r <= #{endRow}]]></if>
+		</where>
+  	</select>
+  	
+  	<!-- 독서상태 책번호 리스트를 받아서 해당 책정보(DetailDTO)를 반환한다. -->
+  	<select id="getReadBook" parameterType="list" resultType="detailDTO">
+  		select * from detail where index_book in
+		<foreach collection="list" item="index_book" open="(" close=")" separator="," >
+			#{index_book}
+		</foreach>
+		order by decode(index_book,
+		<foreach collection="list" item="index_book" index="index" separator="," close=")">
+			#{index_book}, ${index}
+		</foreach>
+  	</select>
+  	
+  	<!-- 평점높은 작품 6개 책정보를 반환한다. -->	
+  	<select id="getRatingBook" resultType="detailDTO">
+  		select index_book, image, comple, times, review_num, rating_num, genre, title, rating_revel, r from
+    		(select index_book, image, comple, times, review_num, rating_num, genre, title, rating_revel, rownum r from 
+    		(select * from detail order by rating_revel desc))
+    		where r <![CDATA[<= ]]> 6
+  	</select>
+  	
+  	<!-- 최근에 댓글이 달린 순서대로 작품리스트를 반환한다. -->
+  	<select id="getCommentList" resultType="int">
+		select index_book from
+		    (select index_book, reg_time, rownum r from 
+		    (select index_book, reg_time from review order by reg_time desc))
+		    where r <![CDATA[<= ]]> 20  		
+  	</select>
+  </mapper>
+  
+  

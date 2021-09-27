@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Ranking">
+	
+	<!-- 지정한 기간동안 링크클릭수를 계산하고, 많은 순서에 따라 랭킹리스트를 받아온다. -->
+	<select id="getRankList" parameterType="rankingDTO" resultType="rankingDTO" >
+		select index_book, n + k as link_sum from
+		    (select index_book, sum(naver) n, sum(kakao) k from link_click 
+		    where reg_time <![CDATA[> ]]> #{startDay} and reg_time <![CDATA[< ]]> #{endDay} group by index_book)
+		    order by link_sum desc		
+	</select>
+	
+	<!-- 랭킹리스트(index_book)리스트를 넣어서 작품정보(DetailDTO)를 받아온다 -->
+	<select id="getBook" parameterType="list" resultType="detailDTO">
+		select * from detail where index_book in
+		<foreach collection="list" item="index_book" open="(" close=")" separator="," >
+			#{index_book}
+		</foreach>
+		order by decode(index_book,
+		<foreach collection="list" item="index_book" index="index" separator="," close=")">
+			#{index_book}, ${index}
+		</foreach>
+	</select>
+	
+	<!-- 전체 링크클릭수를 계산하고, 많은 순서에 따라 랭킹리스트를 받아온다. -->
+	<select id="getTotalRankList" resultType="rankingDTO">
+		select index_book, n + k as link_sum from
+		    (select index_book, sum(naver) n, sum(kakao) k from link_click 
+		    group by index_book) order by link_sum desc	
+	</select>
+</mapper>

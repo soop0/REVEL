@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Keyword">
+	
+	<!-- Keyword_Anal 테이블에서 키워드 가중치(weight)점수 상위 8개 list를 반환한다. -->
+	<select id="getIndexKeyword" parameterType="int" resultType="KeywordDTO">
+		select index_keyword from
+		    (select index_keyword, rownum r from
+		    (select * from keyword_anal where index_book=#{index_book} and index_keyword <![CDATA[< ]]> 400 order by weight desc))
+		    where r <![CDATA[< ]]> 9		
+	</select>
+	
+	<!-- Keyword 테이블에서 키워드번호(index_keword)를 list로 받아서 키워드(keywords)를 list로 반환한다. -->
+	<select id="getKeyword" parameterType="list" resultType="KeywordDTO">
+		select keywords from keyword where index_keyword in 
+		<foreach collection="list" item="keywordList" open="(" close=")" separator=",">
+			#{keywordList}
+		</foreach>
+    		order by decode(index_keyword, 
+    	<foreach collection="list" item="keywordList" index="index" close=")" separator=",">
+    		#{keywordList}, ${index}
+    	</foreach>
+	</select>
+
+</mapper>

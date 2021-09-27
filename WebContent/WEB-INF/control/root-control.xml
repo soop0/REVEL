@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- controller -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:p="http://www.springframework.org/schema/p"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:tx="http://www.springframework.org/schema/tx"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+   					   http://www.springframework.org/schema/context
+   					   http://www.springframework.org/schema/context/spring-context-3.0.xsd
+   					   http://www.springframework.org/schema/tx 
+   					   http://www.springframework.org/schema/tx/spring-tx.xsd">
+  
+   
+   <!-- 프로젝트 전체의 공통된 설정하는 root Controller를 만드는 것이 좋다. -->
+   <!-- Control 파일을 나누어졌다고 해서 작성되는 Control 파일마다 모든 내용을 복사해서 붙여야 하는 건 아니다.
+    	역할(기능)마다 파일은 나눈 것이지 작동되는 Control은 하나이다. -->
+   
+   <!--  view에 관련된 설정 -->
+  	<bean id="viewResolver" 
+  		  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    	<property name="prefix" value="/WEB-INF/view/" />	<!-- set메서드에게 세팅 -->
+    	<property name="suffix" value=".jsp" />		
+  	</bean>
+  	
+  	<!-- 파일 업로드 관한 설정 -->
+  	<!-- value="-1" : 파일 용량 무제한 -->
+  	<bean id="multipartResolver"
+  		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+  		<property name="maxUploadSize" value="-1" />
+  		<property name="defaultEncoding" value="UTF-8" />
+  	</bean>
+  
+  	<!-- mybatis 관한 설정 -->
+  	<!-- DB연결 1,2단계 세팅을 추가 -->
+  	<!-- Connection Pool 생성 : 6개의 객체 생성 -->
+  	<bean id="dataSource" 
+        class="org.apache.tomcat.dbcp.dbcp2.BasicDataSource" 
+        destroy-method="close"
+        p:driverClassName="oracle.jdbc.driver.OracleDriver"
+        p:url="jdbc:oracle:thin:@masternull.iptime.org:1521:orcl"
+        p:username="final06"
+        p:password="final"
+   	/>
+	
+	<!-- 서비스를 많이 제공한다. => 메모리를 많이 잡아먹는다. => controller에 있는 모든 객체들이 생성된다.
+  		 controller에 <bean>은 현재 만들어져 있는 것들(실행할 것들)만 있어야한다. -->
+  	<!-- mybatis 정보를 가져온다. -->
+  	<!-- sqlSessionFactory : CP(Connection Pool) 역할 -->
+  	<!-- ref="dataSource" : 위에서 세팅한 dataSource를 참조 -->
+  	<!-- root => config => SQL 연결 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+      <property name="dataSource" ref="dataSource" />
+      <property name="configLocation" value="/WEB-INF/mybatis/config.xml" />
+   	</bean>
+
+  	
+  	<!-- destroy-method="clearCache" : 종료 시에 연결(저장)되어있던 모든 정보를 지운다. -->
+  	<!-- sqlSession : 사용자의 객체 생성 -->
+  	<!-- ref="sqlSessionFactory"를 참조 -->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">  
+      <constructor-arg  ref="sqlSessionFactory" />
+   	</bean>
+   	
+   	<bean id="keyword" class="ranking.KeywordDTO" />	
+	<bean id="daoKey" class="ranking.KeywordDAOImpl" />
+	
+	<!-- 에러페이지 컨트롤러 -->
+	<context:component-scan base-package="error" />
+   	
+   	
+</beans>

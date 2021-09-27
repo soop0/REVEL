@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="admin">
+  	<!-- 전체 회원수 검색하는 sql -->
+  	<select id="memberCount" resultType="int">
+  		select count(*) from member where status=11 or status=12
+  	</select>
+  	
+  	<!-- 네이버 회원수 검색하는 sql -->
+  	<select id="naverCount" resultType="int">
+  		select count(*) from member where status=11
+  	</select>
+  	
+  	<!-- 카카오 회원수 검색하는 sql -->
+  	<select id="kakaoCount" resultType="int">
+  		select count(*) from member where status=12
+  	</select>
+  	
+  	<!-- 탈퇴 회원수 검색하는 sql -->
+  	<select id="withdrawalCount" resultType="int">
+  		select count(*)
+  			from member where platform_id not in
+  				(select platform_id from member where status in(11,12,100))
+  	</select>
+  	
+  	<!-- 남성 회원수 검색하는 sql -->
+  	<select id="manCount" resultType="int">
+  		select count(*) from member where gender=1 and (status=11 or status=12)
+  	</select>
+  	
+  	<!-- 여성 회원수 검색하는 sql -->
+  	<select id="womanCount" resultType="int">
+  		select count(*) from member where gender=2 and (status=11 or status=12)
+  	</select>
+  	
+  	<!-- 10대 회원수 검색하는 sql -->
+  	<select id="count10" resultType="int">
+  		select count(*) from member
+  		<where>
+  			<![CDATA[age >= 10]]> and <![CDATA[age < 20]]> and (status=11 or status=12)
+  		</where>
+  	</select>
+  	
+  	<!-- 20대 회원수 검색하는 sql -->
+  	<select id="count20" resultType="int">
+  		select count(*) from member
+  		<where>
+  			<![CDATA[age >= 20]]> and <![CDATA[age < 30]]> and (status=11 or status=12)
+  		</where>
+  	</select>
+  	
+  	<!-- 30대 회원수 검색하는 sql -->
+  	<select id="count30" resultType="int">
+  		select count(*) from member
+  		<where>
+  			<![CDATA[age >= 30]]> and <![CDATA[age < 40]]> and (status=11 or status=12)
+  		</where>
+  	</select>
+  	
+  	<!-- 40대 회원수 검색하는 sql -->
+  	<select id="count40" resultType="int">
+  		select count(*) from member
+  		<where>
+  			<![CDATA[age >= 40]]> and <![CDATA[age < 50]]> and (status=11 or status=12)
+  		</where>
+  	</select>
+  	
+  	<!-- 50대 이상 회원수 검색하는 sql -->
+  	<select id="count50" resultType="int">
+  		select count(*) from member
+  		<where>
+  			<![CDATA[age >= 50]]> and (status=11 or status=12)
+  		</where>
+  	</select>
+  	
+  	<!-- 전체 회원 리스트 검색하는 sql -->
+  	<select id="memberList" resultType="memberDTO">
+  		select * from member where status in(11,12) order by index_member desc
+  	</select>
+  	
+  	<!-- 네이버 회원 리스트 검색하는 sql -->
+  	<select id="naverList" resultType="memberDTO">
+  		select * from member where status=11 order by index_member desc
+  	</select>
+  	
+  	<!-- 카카오 회원 리스트 검색하는 sql -->
+  	<select id="kakaoList" resultType="memberDTO">
+  		select * from member where status=12 order by index_member desc
+  	</select>
+  	
+  	<!-- 탈퇴 회원 리스트 검색하는 sql -->
+  	<select id="withdrawalList" resultType="memberDTO">
+  		select *
+  			from member where platform_id not in
+  				(select platform_id from member where status in(11,12,100))
+  					order by index_member desc		
+  	</select>
+  	
+  	<!-- 흥미감소 검색하기 -->
+  	<select id="interestLost" resultType="int" parameterType="String">
+  		select count(*) from member where status=50 and withdrawal=#{value}
+  	</select>
+  	
+  	<!-- 컨텐츠부족 검색하기 -->
+  	<select id="contentNot" resultType="int" parameterType="String">
+  		select count(*) from member where status=50 and withdrawal=#{value}
+  	</select>
+  	
+  	<!-- 타서비스이용 검색하기 -->
+  	<select id="serviceChange" resultType="int" parameterType="String">
+  		select count(*) from member where status=50 and withdrawal=#{value}
+  	</select>
+  	
+  	<!-- 서비스불편 검색하기 -->
+  	<select id="serviceNot" resultType="int" parameterType="String">
+  		select count(*) from member where status=50 and withdrawal=#{value}
+  	</select>
+  	
+  	<!-- 기타 검색하기 -->
+  	<select id="etc" resultType="int" parameterType="withdrawalDTO">
+  		select count(*) from member where status=50 and withdrawal not in(#{interestLost},#{contentNot},#{serviceChange},#{serviceNot},#{nocomment})
+  	</select>
+  	
+  	<!-- 전체 소설 리스트 갯수 검색하는 sql -->
+  	<select id="bookListCount" resultType="int">
+  		select count(*) from detail
+  	</select>
+  	
+  	<!-- 전체 소설 리스트를 검색하는 sql -->
+  	<select id="bookList" resultType="detailDTO">
+  		select index_book, title, writer, publisher, times, comple, genre, rating_revel, rating_num, age_grade, review_num from detail order by index_book asc
+  	</select>
+  	
+  	<!-- 읽을거다 누른 작품 수 확인 -->
+  	<select id="read_wantCount" resultType="int">
+  		select count(*) from detail where read_want > 0
+  	</select>
+  	
+  	<!-- 읽고 있다 누른 작품 수 확인 -->
+  	<select id="read_ingCount" resultType="int">
+  		select count(*) from detail where read_ing > 0
+  	</select>
+  	
+  	<!-- 다읽었다 누른 작품 수 확인 -->
+  	<select id="read_endCount" resultType="int">
+  		select count(*) from detail where read_end > 0
+  	</select>
+  	
+  	<!-- 관심없다 누른 작품 수 확인 -->
+  	<select id="read_notCount" resultType="int">
+  		select count(*) from detail where read_not > 0
+  	</select>
+  	
+  	<!-- 독서상태별 랭킹 갯수 확인 -->
+  	<select id="readRankingCount" parameterType="String" resultType="int">
+  		select count(*) from detail where ${read} > 0
+  	</select>
+  	
+  	<!-- 독서상태별 랭킹 리스트 -->
+  	<select id="readRank" parameterType="String" resultType="detailDTO">
+  		select index_book, title, writer, publisher, genre, ${read}, dense_rank() over (order by ${read} desc) as rank
+  			from detail where ${read} > 0
+  	</select>
+  	
+  	<!-- 전체 댓글수 검색하는 sql -->
+  	<select id="reviewCount" resultType="int">
+  		select count(*) 
+  			from review inner join member on review.index_member = member.index_member 
+        		inner join detail on review.index_book = detail.index_book 
+        order by review.index_review desc
+  	</select>	
+  	
+  	<!-- 전체 댓글 리스트 검색하는 sql -->
+  	<select id="reviewList" resultType="reviewDTO">
+  		select review.*, member.nick, detail.title 
+    		from review inner join member on review.index_member = member.index_member 
+        		inner join detail on review.index_book = detail.index_book 
+        order by review.index_review desc
+  	</select>
+  	
+  	<!-- 삭제하기 위해 선택한 댓글이 있는지 확인하는 sql -->
+  	<select id="reviewDelCount" parameterType="reviewDTO" resultType="int">
+  		select count(*) from review
+  		<where>
+  			<if test="index_review > 0"><![CDATA[index_review=#{index_review}]]></if>
+			<if test="index_book > 0"><![CDATA[and index_book=#{index_book}]]></if>
+  		</where>
+  	</select>
+  	
+  	<!-- 선택된 댓글 삭제하기(기존 내용은 없애고, 클린봇 알림 메시지로 변경 -->
+  	<update id="reviewDel" parameterType="reviewDTO">
+  		update review set cleanbot=#{cleanbot}
+  		<where>
+  			<if test="index_review > 0"><![CDATA[index_review=#{index_review}]]></if>
+			<if test="index_book > 0"><![CDATA[and index_book=#{index_book}]]></if>
+  		</where>
+  	</update>
+  	
+  	<!-- 최다 댓글 회원 순위 갯수 검색 -->
+  	<select id="reviewNickCount" resultType="int">
+  		select count(*) from
+  			(select result.nick, result.cnt, dense_rank() over (order by result.cnt desc) as rank from
+            	(select list.nick, count(list.nick) as cnt from
+                	(select review.*, member.nick, detail.title 
+                        	from review inner join member on review.index_member = member.index_member
+                            	inner join detail on review.index_book = detail.index_book where member.status not in(100) and review.cleanbot not in(1)) 
+            	list group by list.nick order by cnt desc) 
+        	result)
+  	</select>
+  	
+  	<!-- 최다 댓글 회원 순위 검색 -->
+  	<select id="reviewNickRank" resultType="reviewDTO">
+  		select * from
+  			(select result.nick, result.cnt, dense_rank() over (order by result.cnt desc) as rank from
+            	(select list.nick, count(list.nick) as cnt from
+                	(select review.*, member.nick, detail.title 
+                        	from review inner join member on review.index_member = member.index_member
+                            	inner join detail on review.index_book = detail.index_book where member.status not in(100) and review.cleanbot not in(1)) 
+            	list group by list.nick order by cnt desc) 
+        	result)
+  	</select>
+  	
+  	<!-- 최다 댓글 소설 순위 갯수 검색 -->
+  	<select id="reviewBookCount" resultType="int">
+  		select count(*) from
+  			(select result.title, result.cnt, dense_rank() over (order by result.cnt desc) as rank from
+            	(select list.title, count(list.title) as cnt from
+                	(select review.*, member.nick, detail.title 
+                        	from review inner join member on review.index_member = member.index_member
+                            	inner join detail on review.index_book = detail.index_book where member.status not in(100) and review.cleanbot not in(1)) 
+            	list group by list.title order by cnt desc) 
+        	result)  
+  	</select>
+  	
+  	<!-- 최다 댓글 소설 순위 검색 -->
+  	<select id="reviewBookRank" resultType="reviewDTO">
+  		select * from
+  			(select result.title, result.cnt, dense_rank() over (order by result.cnt desc) as rank from
+            	(select list.title, count(list.title) as cnt from
+                	(select review.*, member.nick, detail.title 
+                        	from review inner join member on review.index_member = member.index_member
+                            	inner join detail on review.index_book = detail.index_book where member.status not in(100) and review.cleanbot not in(1)) 
+            	list group by list.title order by cnt desc) 
+        	result)  
+  	</select>
+  	
+  	<!-- 전체 공지사항 리스트 검색 -->
+  	<select id="noticeList" resultType="noticeDTO">
+  		select * from notice
+  	</select>
+  	
+  	<!-- 클린봇 삭제 댓글 수 검색 -->
+  	<select id="cleanbotCount" resultType="int">
+  		select count(*) from review where cleanbot = 1
+  	</select>
+  	
+  	<!-- 클린봇 삭제 댓글 리스트 검색 -->
+  	<select id="cleanbotList" resultType="reviewDTO">
+  		select review.*, member.nick, detail.title 
+    		from review inner join member on review.index_member = member.index_member 
+        		inner join detail on review.index_book = detail.index_book where cleanbot=1
+        order by review.index_review desc
+  	</select>
+  	
+  	<!-- 장르별 평점 갯수 검색 -->
+  	<select id="genreRatingCount" parameterType="adminDTO" resultType="int">
+  		select count(*) 
+  			from (select rating.index_book, rating.index_member, rating, detail.genre 
+  						from rating inner join detail on rating.index_book = detail.index_book) result
+		where result.genre=#{genre} and result.rating=#{rating}
+  	</select>
+  	
+  	<!-- 장르별 연령 인기(링크클릭) 리스트 갯수 검색 -->
+  	<select id="genreAgeCount" parameterType="adminDTO" resultType="int">
+  		select count(*)
+			from (select link_click.index_book, link_click.index_member, link_click.naver, link_click.kakao, member.age, detail.genre
+    					from link_click inner join member on link_click.index_member = member.index_member and link_click.index_member != 0 
+                    					inner join detail on link_click.index_book = detail.index_book) result
+		<where>
+			<if test="genre > 0">result.genre=#{genre}</if>
+			<if test="ageStart != 50">
+				<if test="ageStart > 0"><![CDATA[and result.age>=#{ageStart}]]></if>
+				<if test="ageEnd > 0"><![CDATA[and result.age<#{ageEnd}]]></if>
+			</if>
+			<if test="ageStart == 50">
+				<if test="ageStart > 0"><![CDATA[and result.age>=#{ageStart}]]></if>
+			</if>	
+		</where> 
+  	</select>
+  	
+  	<!-- 장르별 연령 인기(링크클릭) naver, kakao 링크 클릭수 검색-->
+	<select id="genreAgePlatform" parameterType="adminDTO" resultType="adminDTO">
+		select sum(result.naver) as naver, sum(result.kakao) as kakao
+			from (select link_click.index_book, link_click.index_member, link_click.naver, link_click.kakao, member.age, detail.genre
+    					from link_click inner join member on link_click.index_member = member.index_member and link_click.index_member != 0 
+                    					inner join detail on link_click.index_book = detail.index_book) result
+		<where>
+			<if test="genre > 0">result.genre=#{genre}</if>
+			<if test="ageStart != 50">
+				<if test="ageStart > 0"><![CDATA[and result.age>=#{ageStart}]]></if>
+				<if test="ageEnd > 0"><![CDATA[and result.age<#{ageEnd}]]></if>
+			</if>
+			<if test="ageStart == 50">
+				<if test="ageStart > 0"><![CDATA[and result.age>=#{ageStart}]]></if>
+			</if>	
+		</where> 
+	</select>  	
+	
+	<!-- 키워드 순위(전체 작품 기준) -->
+	<select id="keywordRank" parameterType="keywordDTO" resultType="keywordDTO">
+		select top.*
+			from (select result.index_keyword, result.category, result.keywords, sum(result.weight) as sum, 
+				  		 dense_rank() over (partition by result.category order by sum(result.weight) desc) as rank 
+				  	from (select keyword_anal.index_keyword, keyword.category, keyword.keywords, keyword_anal.weight 
+				  			from keyword_anal inner join keyword on keyword_anal.index_keyword = keyword.index_keyword) result
+					group by(result.index_keyword,result.category, result.keywords)) 
+			top 
+			<where>
+				<![CDATA[top.rank <= 5]]>
+				<if test="index_keyword_start > 0"><![CDATA[and top.index_keyword >= #{index_keyword_start}]]></if> 
+				<if test="index_keyword_end > 0"><![CDATA[and top.index_keyword < #{index_keyword_end}]]></if> 
+			</where>
+	</select>
+	
+	<!-- 성별 인기 작품 순위 -->
+	<select id="genderTopRank" parameterType="int" resultType="detailDTO">
+		select top.* 
+			from (select result.index_book, result.title, result.gender, sum(result.total) as total, 
+            			 dense_rank() over (partition by result.gender order by sum(result.total) desc) as rank
+        			from (select link_click.index_book, link_click.index_member, link_click.naver+link_click.kakao as total, member.gender, detail.title
+                    		from link_click inner join member on link_click.index_member = member.index_member inner join detail on link_click.index_book = detail.index_book
+                				where link_click.index_member not in 0) result
+        			group by result.index_book, result.title, result.gender) top
+    	<where>
+    		<![CDATA[top.rank <= 5]]> and top.gender=#{value}
+    	</where> 
+	</select>
+	
+	<!-- link_clickCount 테이블에 저장된 리스트 갯수 확인 -->
+	<select id="link_clickCount" resultType="int">
+		select count(*) from link_click
+	</select>
+  </mapper>

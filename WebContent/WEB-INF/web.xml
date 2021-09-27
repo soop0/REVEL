@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  
+  
+  <!-- encoding 설정 (post방식)-->
+  <filter>
+  	<filter-name>encodingFilter</filter-name>
+  	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  	<init-param>
+  		<param-name>encoding</param-name>
+  		<param-value>UTF-8</param-value>
+  	</init-param>
+  </filter>
+  
+  <!-- encoding 매핑할 주소 설정(모든 주소) -->
+  <filter-mapping>
+  	<filter-name>encodingFilter</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <!-- servlet 설정 -->
+  <!-- <param-value> : Controller를 만들 경로 지정 -->
+  <!-- controller 설정 :  xml 파일 지정 -->
+  <servlet>
+  	<servlet-name>revel</servlet-name>	
+  	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  	<init-param>
+  		<param-name>contextConfigLocation</param-name>
+  		<param-value>	
+  			/WEB-INF/control/root-control.xml
+  			/WEB-INF/control/main-control.xml
+  			/WEB-INF/control/detail-control.xml
+  			/WEB-INF/control/genre-control.xml
+  			/WEB-INF/control/member-control.xml
+  			/WEB-INF/control/recommend-control.xml
+  			/WEB-INF/control/help-control.xml
+  			/WEB-INF/control/admin-control.xml
+  			/WEB-INF/control/ranking-control.xml
+  			/WEB-INF/control/aop-control.xml
+  		</param-value>		
+  	</init-param>
+  </servlet>
+  
+  <servlet-mapping>
+  	<servlet-name>revel</servlet-name>
+  	<url-pattern>*.rv</url-pattern>
+  </servlet-mapping>
+
+	<!-- 에러페이지 처리 -->  
+	<error-page>
+  		<error-code>400</error-code>
+		<location>/error/error400.rv</location>
+	</error-page>
+
+	<error-page>
+		<error-code>403</error-code>
+		<location>/error/error403.rv</location>
+	</error-page>
+	
+	<error-page>
+		<error-code>404</error-code>
+		<location>/error/error404.rv</location>
+	</error-page>
+
+	<error-page>
+		<error-code>405</error-code>
+		<location>/error/error405.rv</location>
+		</error-page>
+	<error-page>
+	
+	<error-code>500</error-code>
+		<location>/error/error500.rv</location>
+		</error-page>
+	<error-page>
+	
+	<error-code>503</error-code>
+		<location>/error/error503.rv</location>
+	</error-page>
+
+
+
+  
+  
+</web-app>

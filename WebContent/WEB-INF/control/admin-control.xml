@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:p="http://www.springframework.org/schema/p"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans
+   					   http://www.springframework.org/schema/beans/spring-beans.xsd
+   					   http://www.springframework.org/schema/context
+   					   http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="admin" />
+	
+	<bean id="detail" class="detail.DetailDTO" />
+	<bean id="review" class="detail.ReviewDTO" />
+	<bean id="withdrawal" class="admin.WithdrawalDTO" />
+	<bean id="admin" class="admin.AdminDTO" />
+	<bean id="search" class="main.SearchDTO" />
+	<bean id="keyword" class="ranking.KeywordDTO" />
+	
+	<bean id="adminImpl" class="admin.AdminDAOImpl" />
+	<bean id="detailImpl" class="detail.DetailDAOImpl" />
+	<bean id="noticeImpl" class="help.NoticeDAOImpl" />
+</beans>
